@@ -24,36 +24,37 @@ def setup_actions(snapshot, config, client, snap_datadir, spooldir):
         * InnoDB recovery
         * Recording MySQL replication
     """
-    mysql = connect_simple(config['mysql:client'])
-    if mysql.show_variable('have_innodb') == 'YES':
-        try:
-            pathinfo = MySQLPathInfo.from_mysql(mysql)
-        finally:
-            mysql.close()
-        try:
-            check_innodb(pathinfo, ensure_subdir_of_datadir=True)
-        except BackupError:
-            if not config['mysql-lvm']['force-innodb-backup']:
-                raise
-
-    if config['mysql-lvm']['lock-tables']:
-        extra_flush = config['mysql-lvm']['extra-flush-tables']
-        act = FlushAndLockMySQLAction(client, extra_flush)
-        snapshot.register('pre-snapshot', act, priority=100)
-        snapshot.register('post-snapshot', act, priority=100)
-    if config['mysql-lvm'].get('replication', True):
-        repl_cfg = config.setdefault('mysql:replication', {})
-        act = RecordMySQLReplicationAction(client, repl_cfg)
-        snapshot.register('pre-snapshot', act, 0)
-    if config['mysql-lvm']['innodb-recovery']:
-        mysqld_config = dict(config['mysqld'])
-        mysqld_config['datadir'] = snap_datadir
-        if not mysqld_config['tmpdir']:
-            mysqld_config['tmpdir'] = tempfile.gettempdir()
-        ib_log_size = client.show_variable('innodb_log_file_size')
-        mysqld_config['innodb-log-file-size'] = ib_log_size
-        act = InnodbRecoveryAction(mysqld_config)
-        snapshot.register('post-mount', act, priority=100)
+    if client is not None:
+        mysql = connect_simple(config['mysql:client'])
+        if mysql.show_variable('have_innodb') == 'YES':
+            try:
+                pathinfo = MySQLPathInfo.from_mysql(mysql)
+            finally:
+                mysql.close()
+            try:
+                check_innodb(pathinfo, ensure_subdir_of_datadir=True)
+            except BackupError:
+                if not config['mysql-lvm']['force-innodb-backup']:
+                    raise
+    
+        if config['mysql-lvm']['lock-tables']:
+            extra_flush = config['mysql-lvm']['extra-flush-tables']
+            act = FlushAndLockMySQLAction(client, extra_flush)
+            snapshot.register('pre-snapshot', act, priority=100)
+            snapshot.register('post-snapshot', act, priority=100)
+        if config['mysql-lvm'].get('replication', True):
+            repl_cfg = config.setdefault('mysql:replication', {})
+            act = RecordMySQLReplicationAction(client, repl_cfg)
+            snapshot.register('pre-snapshot', act, 0)
+        if config['mysql-lvm']['innodb-recovery']:
+            mysqld_config = dict(config['mysqld'])
+            mysqld_config['datadir'] = snap_datadir
+            if not mysqld_config['tmpdir']:
+                mysqld_config['tmpdir'] = tempfile.gettempdir()
+            ib_log_size = client.show_variable('innodb_log_file_size')
+            mysqld_config['innodb-log-file-size'] = ib_log_size
+            act = InnodbRecoveryAction(mysqld_config)
+            snapshot.register('post-mount', act, priority=100)
 
 
     archive_stream = open_stream(os.path.join(spooldir, 'backup.tar'),

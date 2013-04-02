@@ -25,6 +25,12 @@ snapshot-size = string(default=None)
 # default: temporary directory
 snapshot-mountpoint = string(default=None)
 
+# default: yes
+use-mysql = boolean(default=yes)
+
+# default: path to backup
+data-dir = string(default=None)
+
 # default: no
 innodb-recovery = boolean(default=no)
 
@@ -88,19 +94,28 @@ class MysqlLVMBackup(object):
         self.name = name
         self.target_directory = target_directory
         self.dry_run = dry_run
-        self.client = connect_simple(self.config['mysql:client'])
+        self.datadir = self.config['mysql-lvm']['data-dir']
+        self.use_mysql = self.config['mysql-lvm']['use-mysql']
+        self.client = None
+        if self.use_mysql:
+            self.client = connect_simple(self.config['mysql:client'])
 
     def estimate_backup_size(self):
         """Estimate the backup size this plugin will produce
 
         This is currently the total directory size of the MySQL datadir
         """
-        try:
-            self.client.connect()
-            datadir = self.client.show_variable('datadir')
-            self.client.disconnect()
-        except MySQLError, exc:
-            raise BackupError("[%d] %s" % exc.args)
+        datadir = self.datadir
+        if self.use_mysql:
+                try:
+                    self.client.connect()
+                    dir = self.client.show_variable('datadir')
+                    if datadir != dir:
+                            LOG.warn('MySQL reports its datadir as %s, not %s as configured in backupset.  Overriding config', dir, datadir)
+                            datadir = dir
+                    self.client.disconnect()
+                except MySQLError, exc:
+                    raise BackupError("[%d] %s" % exc.args)
         return directory_size(datadir)
 
     def configspec(self):
@@ -111,12 +126,17 @@ class MysqlLVMBackup(object):
         """Run a backup by running through a LVM snapshot against the device
         the MySQL datadir resides on
         """
+        datadir = os.path.realpath(self.datadir)
         # connect to mysql and lookup what we're supposed to snapshot
-        try:
-            self.client.connect()
-            datadir = os.path.realpath(self.client.show_variable('datadir'))
-        except MySQLError, exc:
-            raise BackupError("[%d] %s" % exc.args)
+        if self.use_mysql:
+            try:
+                self.client.connect()
+                dir = os.path.realpath(self.client.show_variable('datadir'))
+                if datadir != dir:
+                    LOG.warn('MySQL reports its datadir as %s, not %s as configured in backupset.  Overriding config', dir, datadir)
+                    datadir = dir
+            except MySQLError, exc:
+                raise BackupError("[%d] %s" % exc.args)
 
         LOG.info("Backing up %s via snapshot", datadir)
         # lookup the logical volume mysql's datadir sits on
