@@ -1,0 +1,74 @@
+holland (1.0.8-HEAD-zendesk0) lucid; urgency=low
+
+  * adding switch to mysql-lvm to skip mysql (just do lvm)
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Tue, 29 Mar 2013 15:15:40 +0000
+
+holland (1.0.7-HEAD-zendesk6) lucid; urgency=low
+
+  * external hooks were upstream'ed.  This should be the last zendesk-only build, whooo.
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Tue, 29 Mar 2011 15:15:40 +0000
+
+holland (1.0.7-HEAD-zendesk5) lucid; urgency=low
+
+  * pick up wait-'til-gz-done changes
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Tue, 01 Mar 2011 13:31:18 +0000
+
+holland (1.0.7-HEAD-zendesk4) lucid; urgency=low
+
+  * mess with the dependencies
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Wed, 23 Feb 2011 20:12:34 +0000
+
+holland (1.0.7-HEAD-zendesk3) lucid; urgency=low
+
+  * Add external hooks.  hopefully this makes it into upstream.* 
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Mon, 14 Feb 2011 23:41:06 +0000
+
+holland (1.0.7-HEAD-zendesk2) lucid; urgency=low
+
+  * try different config stuff
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Thu, 10 Feb 2011 17:55:54 +0000
+
+holland (1.0.7-HEAD-zendesk1) lucid; urgency=low
+
+  * New upstream release
+  * fix mysqllvm dev package* 
+
+ -- Zendesk Application <zendesk@build-lucid.sys.zendesk.com>  Thu, 10 Feb 2011 17:36:05 +0000
+
+holland (1.0.6-1) unstable; urgency=low
+
+  * New upstream release
+  * Added holland-pgdump
+
+ -- Andrew Garner <andrew.garner@rackspace.com>  Tue, 11 Jan 2011 23:05:37 -0500
+
+holland (1.0.3-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Andrew Garner <andrew.garner@rackspace.com>  Tue, 13 Jul 2010 15:44:00 -0500
+
+holland (0.9.9-3) unstable; urgency=low
+
+  * Added python-sphinx build dependency
+  * Fixed typo in holland.lib.mysql egg-info path
+
+ -- Andrew Garner <andrew.garner@rackspace.com>  Tue, 11 May 2010 18:15:29 -0500
+
+holland (0.9.9-2) unstable; urgency=low
+
+  * Remove .egg file dependency
+
+ -- Andrew Garner <andrew.garner@rackspace.com>  Sun, 09 May 2010 04:36:17 -0500
+
+holland (0.9.9-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Andrew Garner <andrew.garner@rackspace.com>  Sun, 09 May 2010 03:52:44 -0500
