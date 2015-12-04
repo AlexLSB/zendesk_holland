@@ -73,11 +73,14 @@ def pg_databases(config, connection):
     """Find the databases available in the Postgres cluster specified
     in config['pgpass']
     """
-    cursor = connection.cursor()
-    cursor.execute("SELECT datname FROM pg_database WHERE not datistemplate and datallowconn")
-    databases = [db for db, in cursor]
-    cursor.close()
-    logging.debug("pg_databases() -> %r", databases)
+    if config["pgdump"]["databases"]:
+        databases = [dbname.strip() for dbname in config["pgdump"]["databases"].split(",")]
+    else:
+        cursor = connection.cursor()
+        cursor.execute("SELECT datname FROM pg_database WHERE not datistemplate and datallowconn")
+        databases = [db for db, in cursor]
+        cursor.close()
+        logging.debug("pg_databases() -> %r", databases)
     return databases
 
 def run_pgdump(dbname, output_stream, connection_params, format='custom', env=None):
